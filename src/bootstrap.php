@@ -1,30 +1,12 @@
 <?php
 require __DIR__.'/../vendor/autoload.php';
 
-use Illuminate\Container\Container;
 use Illuminate\Events\EventServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Routing\RoutingServiceProvider;
 use Symfony\Component\Dotenv\Dotenv;
 
-/**
- * Get the app container
- *
- * @param string|null $key
- * @return Container|Object
- */
-function app($key = null)
-{
-    static $container = null;
-    if (empty($container)) {
-        $container = new Container;
-    }
-    if (empty($key)) {
-        return $container;
-    } else {
-        return $container->get($key);
-    }
-}
+require 'helpers.php';
 
 $app = app();
 $dotenv = new Dotenv();
@@ -36,5 +18,6 @@ with(new RoutingServiceProvider($app))->register();
 
 require 'routes.php';
 
-$response = app('router')->dispatch(Request::createFromGlobals());
+$app->instance(Request::class, Request::createFromGlobals());
+$response = app('router')->dispatch($app->get(Request::class));
 $response->send();
