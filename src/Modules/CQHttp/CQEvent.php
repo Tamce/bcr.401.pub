@@ -6,7 +6,7 @@ use Exception;
 abstract class CQEvent
 {
     protected $time;
-    protected array $data;
+    protected $data;
 
     static public function createFromArray(array $data)
     {
