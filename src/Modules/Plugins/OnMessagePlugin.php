@@ -7,7 +7,7 @@ use App\Modules\CQHttp\CQPrivateMessageEvent;
 
 abstract class OnMessagePlugin
 {
-    protected $type = 'private';
+    protected $listen = 'private';
     protected $commands = [];
 
     public function register(CQHttp $cq)
@@ -16,10 +16,10 @@ abstract class OnMessagePlugin
             return;
         }
 
-        if (empty($this->type)) {
-            $this->type = '*';
+        if (empty($this->listen)) {
+            $this->listen = '*';
         }
-        $cq->on("message.$this->type", [$this, $this->type == '*' ? 'handleWild' : 'handle']);
+        $cq->on("message.$this->listen", [$this, $this->listen == '*' ? 'handleWild' : 'handle']);
     }
 
     public function handle(CQPrivateMessageEvent $e)
@@ -29,7 +29,7 @@ abstract class OnMessagePlugin
             if (preg_match($reg, $e->getRawMessage(), $matches)) {
                 array_shift($matches);
                 if (is_callable([$this, $handler])) {
-                    app()->call([$this, $handler], $matches);
+                    return app()->call([$this, $handler], $matches);
                 }
                 break;
             }
