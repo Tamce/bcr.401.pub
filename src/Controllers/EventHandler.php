@@ -5,6 +5,7 @@ use App\Modules\CQHttp\CQEvent;
 use App\Modules\CQHttp\CQGroupMessageEvent;
 use App\Modules\CQHttp\CQHttp;
 use App\Modules\CQHttp\CQPrivateMessageEvent;
+use App\Modules\Plugins\EchoPlugin;
 use Illuminate\Http\Request;
 
 class EventHandler
@@ -14,19 +15,11 @@ class EventHandler
         $botId = $request->header('X-Self-ID', '0');
         $sig = $request->header('X-Signature');
 
-        $cq->listen('message.group', function (CQGroupMessageEvent $e) {
-            if ($e->getMessage() == '%ping') {
-                $e->reply('pong!');
-            }
-        });
-        $cq->listen('message.private', function (CQPrivateMessageEvent $e) {
-            if ($e->getMessage() == '%ping') {
-                $e->reply('pong@');
-            }
-        });
-        $cq->listen('message.*', function ($name, $e) {
-            $e[0]->reply('!');
-        });
+        $plugins = explode(',', $_ENV['PLUGINS']);
+        foreach ($plugins as $plugin) {
+            $class = 'App\\Modules\\Plugins\\'.trim($plugin);
+            (new $class)->register($cq);
+        }
         return $cq->dispatchEventFromArray($request->input());
     }
 }

@@ -16,9 +16,15 @@ class CQHttp
         $this->event->listen($events, $handler);
     }
 
+    public function on($events, $handler)
+    {
+        $this->event->listen($events, $handler);
+    }
+
     public function dispatchEventFromArray(array $data)
     {
         $e = CQEvent::createFromArray($data);
+        app()->instance(CQEvent::class, $e);
         $this->event->dispatch($e->eventType(), $e);
         return $e->getResponse();
     }
