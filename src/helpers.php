@@ -29,6 +29,6 @@ function json($data, $status = 200, $headers = [])
 
 function storage($path = null)
 {
-    $path = ltrim($path ?? '', '/');
-    return realpath(dirname(__DIR__.'/../storage')) . $path;
+    $path = '/'.ltrim($path ?? '', '/');
+    return realpath(dirname(__FILE__).'/../storage') . $path;
 }

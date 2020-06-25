@@ -18,3 +18,5 @@ foreach ($dom->find('a.thumb img') as $item) {
     $result[] = $url;
 }
 file_put_contents(storage('/hpic.json'), json_encode($result));
+$count = count($result);
+echo "Saved $count items to ".storage('/hpic.json')."\n";

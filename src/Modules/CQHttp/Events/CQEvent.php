@@ -52,7 +52,7 @@ abstract class CQEvent
     }
 
 
-    protected $response = [];
+    protected $response = ['at_sender' => false];
     public function getResponse()
     {
         return $this->response;
