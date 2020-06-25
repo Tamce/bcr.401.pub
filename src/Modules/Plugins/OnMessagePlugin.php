@@ -26,7 +26,7 @@ abstract class OnMessagePlugin
     {
         $msg = $e->getRawMessage();
         if (strlen($msg) > 6 and substr($msg, 0, 6) == '%debug') {
-            $msg = substr($msg, 6);
+            $msg = substr($msg, strpos($msg, '%', 1));
             $e->setDebug(true);
         }
         foreach ($this->commands as $key => $handler) {

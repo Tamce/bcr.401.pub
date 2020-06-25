@@ -56,10 +56,10 @@ abstract class CQEvent
     public function getResponse()
     {
         if ($this->isDebug()) {
-            return "raw msg:\n".$this->rawData('raw_message')."\n========\n\nresponse:\n".json_encode($this->response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        } else {
-            return $this->response;
+            $this->autoEscape(true);
+            $this->reply("raw msg:\n".$this->rawData('raw_message')."\n========\n\nresponse:\n".json_encode($this->response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), false);
         }
+        return $this->response;
     }
 
     protected $debug = false;
