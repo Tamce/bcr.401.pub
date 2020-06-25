@@ -2,6 +2,8 @@
 namespace App\Modules\CQHttp;
 
 use App\Modules\CQHttp\Events\CQEvent;
+use App\Modules\CQHttp\Events\CQGroupMessageEvent;
+use App\Modules\CQHttp\Events\CQPrivateMessageEvent;
 use Illuminate\Events\Dispatcher;
 
 class CQHttp
@@ -26,6 +28,8 @@ class CQHttp
     {
         $e = CQEvent::createFromArray($data);
         app()->instance(CQEvent::class, $e);
+        app()->alias(CQEvent::class, CQPrivateMessageEvent::class);
+        app()->alias(CQEvent::class, CQGroupMessageEvent::class);
         $this->event->dispatch($e->eventType(), $e);
         return $e->getResponse();
     }

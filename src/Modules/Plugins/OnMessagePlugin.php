@@ -25,7 +25,12 @@ abstract class OnMessagePlugin
     public function handle(CQPrivateMessageEvent $e)
     {
         foreach ($this->commands as $key => $handler) {
-            $reg = '/'. ($_ENV['CMD_PREFIX'] ?? '') . $key . '/s';
+            if ($key[0] == '^') {
+                $reg = "/$key/s";
+            } else {
+                $reg = '/'. ($_ENV['CMD_PREFIX'] ?? '') . $key . '/s';
+            }
+
             if (preg_match($reg, $e->getRawMessage(), $matches)) {
                 array_shift($matches);
                 if (is_callable([$this, $handler])) {

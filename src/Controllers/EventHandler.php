@@ -20,6 +20,6 @@ class EventHandler
             $class = 'App\\Modules\\Plugins\\'.trim($plugin);
             (new $class)->register($cq);
         }
-        return $cq->dispatchEventFromArray($request->input());
+        return json($cq->dispatchEventFromArray($request->input()));
     }
 }

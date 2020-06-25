@@ -23,7 +23,7 @@ function app($key = null)
 
 function json($data, $status = 200, $headers = [])
 {
-    $response = Response::create(json_encode($data), $status, $headers);
+    $response = Response::create(json_encode($data, JSON_UNESCAPED_UNICODE), $status, $headers);
     return $response->withHeaders(['Content-Type' => 'application/json']);
 }
 
