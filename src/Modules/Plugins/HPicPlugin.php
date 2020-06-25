@@ -11,6 +11,8 @@ class HPicPlugin extends OnMessagePlugin
 {
     protected $commands = [
         '色图' => 'getPic',
+        '瑟图' => 'getPic',
+        '涩图' => 'getPic',
     ];
     protected $listen = '*';
 
