@@ -47,6 +47,9 @@ abstract class OnMessagePlugin
                 break;
             }
         }
+        if ($e->isDebug()) {
+            $e->reply("[debug:match done]\n");
+        }
     }
 
     public function handleWild($name, $e)
