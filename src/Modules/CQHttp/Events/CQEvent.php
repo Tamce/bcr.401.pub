@@ -56,7 +56,7 @@ abstract class CQEvent
     public function getResponse()
     {
         if ($this->isDebug()) {
-            return "raw msg:\n".$this->rawData('raw_message')."\n========\n\nresponse:\n".$this->response;
+            return "raw msg:\n".$this->rawData('raw_message')."\n========\n\nresponse:\n".json_encode($this->response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         } else {
             return $this->response;
         }

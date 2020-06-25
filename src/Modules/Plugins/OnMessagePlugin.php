@@ -24,17 +24,16 @@ abstract class OnMessagePlugin
 
     public function handle(CQPrivateMessageEvent $e)
     {
+        $msg = $e->getRawMessage();
+        if (strlen($msg) > 6 and substr($msg, 0, 6) == '%debug') {
+            $msg = substr($msg, 6);
+            $e->setDebug(true);
+        }
         foreach ($this->commands as $key => $handler) {
             if ($key[0] == '^') {
                 $reg = "/$key/s";
             } else {
                 $reg = '/'. ($_ENV['CMD_PREFIX'] ?? '') . $key . '/s';
-            }
-
-            $msg = $e->getRawMessage();
-            if (strlen($msg) > 6 and substr($msg, 0, 6) == '%debug') {
-                $msg = substr($msg, 6);
-                $e->setDebug(true);
             }
 
             if (preg_match($reg, $msg, $matches)) {
