@@ -10,7 +10,7 @@ use PHPHtmlParser\Dom;
 class HPicPlugin extends OnMessagePlugin
 {
     protected $commands = [
-        '涩图有多少' => 'query',
+        '涩图有多少' => 'count',
         '涩图 (.*)' => 'query',
         '色图' => 'getPic',
         '瑟图' => 'getPic',
@@ -18,18 +18,20 @@ class HPicPlugin extends OnMessagePlugin
     ];
     protected $listen = '*';
 
-    public function query(CQEvent $e, $id = null)
+    public function count(CQEvent $e)
     {
         $list = json_decode(file_get_contents(storage('/hpic.json')));
-        if (is_null($id)) {
-            $e->reply('目前涩图存量: '.count($list));
-        } else {
-            if ($id >= count($list) or $id < 0) {
-                $e->reply('合法 id 范围为 0 - '.count($list) - 1);
-            }
-            $url = $list[$id];
-            $e->reply("id: $id\nurl: $url\n".CQCode::image($url));
+        $e->reply('目前涩图存量: '.count($list));
+    }
+
+    public function query(CQEvent $e, $id)
+    {
+        $list = json_decode(file_get_contents(storage('/hpic.json')));
+        if ($id >= count($list) or $id < 0) {
+            $e->reply('合法 id 范围为 0 - '.count($list) - 1);
         }
+        $url = $list[$id];
+        $e->reply("id: $id\nurl: $url\n".CQCode::image($url));
     }
 
     public function getPic(CQEvent $e)
