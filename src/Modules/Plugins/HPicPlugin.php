@@ -15,7 +15,7 @@ class HPicPlugin extends OnMessagePlugin
     protected $commands = [
         '涩图存量$' => 'count',
         '涩图分类$' => 'category',
-        '涩图 (\w+)$' => 'query',
+        '涩图 (.+)$' => 'query',
         '涩图$' => 'queryDefault',
         '查涩图 (\d+)' => 'queryById',
         '上传涩图(.*)$' => 'upload',
