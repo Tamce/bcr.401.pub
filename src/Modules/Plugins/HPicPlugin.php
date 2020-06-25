@@ -151,6 +151,8 @@ EOD);
                 $e->reply("，已经自动显示下一张涩图\n");
                 $item = $data;
             }
+            if (empty($data))
+                return;
         }
 
         $url = $this->getUrlOrDownload($item);
