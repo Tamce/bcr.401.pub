@@ -15,6 +15,8 @@ class HPicPlugin extends OnMessagePlugin
     protected $commands = [
         '涩图存量$' => 'count',
         '涩图分类$' => 'category',
+        '涩图备注 (\w+) (.+)' => 'comment',
+        '涩图搜索 (.+)' => 'search',
         '涩图 (.+)$' => 'query',
         '涩图$' => 'queryDefault',
         '上传涩图(.*)$' => 'upload',
@@ -35,9 +37,42 @@ class HPicPlugin extends OnMessagePlugin
     来一份已缓存的随机涩图
 %涩图 id
     按id查看涩图
+%涩图备注 id 备注内容
+    给涩图写备注方便搜索
+%涩图搜索 关键词
+    搜索备注含有关键词的涩图
 %上传涩图 [分类,可选] [图片/url]
     上传指定图片或url到指定分类的涩图库，默认分类为 default"
 EOD);
+    }
+
+    public function comment(CQEvent $e, $id, $comment)
+    {
+        $img = Image::find($id);
+        if (empty($img)) {
+            return $e->reply("未找到 id 为 $id 的涩图");
+        }
+        $img->comment = $comment;
+        $img->save();
+        return $e->reply("成功设置涩图 $id 的备注为: $comment");
+    }
+
+    public function search(CQEvent $e, $comment)
+    {
+        $result = Image::where('comment', 'like', "%$comment%")->get();
+        if ($result->isEmpty()) {
+            return $e->reply('未找到符合的涩图');
+        }
+        $e->reply('找到 '.$result->count().' 张符合的涩图:');
+        if ($result->count() <= 2) {
+            foreach ($result as $item) {
+                $e->reply("\nid: {$item->id}\n".CQCode::image($this->getUrlOrDownload($item)));
+            }
+        } else {
+            foreach ($result as $item) {
+                $e->reply("\nid: {$item->id}");
+            }
+        }
     }
 
     public function count(CQEvent $e)
@@ -65,7 +100,7 @@ EOD);
     public function query(CQEvent $e, $category)
     {
         if (is_numeric($category)) {
-            return $this->queryById($e, $category, true);
+            return $this->queryById($e, $category);
         }
 
         $data = Image::where('downloaded', true);
@@ -87,7 +122,7 @@ EOD);
         $this->query($e, 'all');
     }
 
-    public function queryById(CQEvent $e, $id, $internet = true)
+    public function queryById(CQEvent $e, $id)
     {
         if (!is_numeric($id)) {
             return $e->reply('请输入数字 id');
@@ -96,31 +131,20 @@ EOD);
         if (empty($item)) {
             return $e->reply("涩图 id: $id 不存在");
         }
-        if ($item->local_path) {
-            $e->reply("id: {$item->id}\n".CQCode::image($item->local_path));
-        } else if ($internet) {
-            $data = Image::download($item->origin_url);
-            if (empty($data)) {
-                $e->reply("[互联网图片，下载失败]\nid: {$item->id}\nurl: {$item->origin_url}");
-            } else {
-                $item->local_path = $data['local_path'];
-                $item->downloaded = 1;
-                $item->save();
-                $e->reply("id: {$item->id}\n".CQCode::image($item->local_path));
-            }
-        } else {
-            $e->reply("[互联网图片，未下载]\nid: {$item->id}\nurl: {$item->origin_url}");
+
+        $url = $this->getUrlOrDownload($item);
+        if (empty($item->local_path)) {
+            $e->reply("[互联网图片,下载失败]\nurl: $url\n");
         }
+        $e->reply("id: {$item->id}\n".CQCode::image($url));
     }
 
     public function upload(CQPrivateMessageEvent $e, $text)
     {
         $text = trim($text);
-        $seg = explode(' ', $text, 2);
-        $category = 'default';
-        if (count($seg) > 1) {
-            $category = $seg[0];
-            $text = $seg[1];
+        $category = substr($text, 0, strpos($text, '['));
+        if (empty($category)) {
+            $category = 'default';
         }
 
         if (preg_match('/\[CQ:image,file=([^\],]*),{0,1}.*\]/', $text, $matches)) {
@@ -147,6 +171,23 @@ EOD);
             $e->reply("上传至分类 `$category` 成功！id: $item->id");
         } else {
             $e->reply('未发现待上传涩图');
+        }
+    }
+
+    protected function getUrlOrDownload(Image $item)
+    {
+        if ($item->local_path) {
+            return $item->local_path;
+        } else {
+            $data = Image::download($item->origin_url);
+            if (empty($data)) {
+                return $item->origin_url;
+            } else {
+                $item->local_path = $data['local_path'];
+                $item->downloaded = 1;
+                $item->save();
+                return $item->local_path;
+            }
         }
     }
 }

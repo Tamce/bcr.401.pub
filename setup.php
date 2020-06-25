@@ -13,7 +13,7 @@ $schema->create('images', function (Blueprint $table) {
     $table->string('category', 128)->default('default')->index();
     $table->text('origin_url')->nullable();
     $table->string('local_path', 256)->nullable();
-    $table->string('alias', 128)->nullable();
+    $table->string('comment', 256)->nullable();
     $table->boolean('downloaded')->default(false)->index();
     $table->text('extra')->nullable();
     $table->timestamps();
