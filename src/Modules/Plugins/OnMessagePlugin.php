@@ -34,6 +34,7 @@ abstract class OnMessagePlugin
             $msg = $e->getRawMessage();
             if (strlen($msg) > 6 and substr($msg, 0, 6) == '%debug') {
                 $msg = substr($msg, 6);
+                $e->setDebug(true);
             }
 
             if (preg_match($reg, $msg, $matches)) {

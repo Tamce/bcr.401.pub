@@ -40,6 +40,8 @@ class HPicPlugin extends OnMessagePlugin
     按id查看涩图
 %涩图备注 id 备注内容
     给涩图写备注方便搜索
+%删除涩图 id
+    删除指定涩图
 %涩图搜索 关键词
     搜索备注含有关键词的涩图
 %上传涩图 [分类,可选] [图片/url]
