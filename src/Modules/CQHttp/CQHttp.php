@@ -1,6 +1,7 @@
 <?php
 namespace App\Modules\CQHttp;
 
+use App\Modules\CQHttp\Events\CQEvent;
 use Illuminate\Events\Dispatcher;
 
 class CQHttp

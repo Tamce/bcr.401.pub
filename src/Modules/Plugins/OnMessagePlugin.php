@@ -1,9 +1,9 @@
 <?php
 namespace App\Modules\Plugins;
 
-use App\Modules\CQHttp\CQEvent;
 use App\Modules\CQHttp\CQHttp;
-use App\Modules\CQHttp\CQPrivateMessageEvent;
+use App\Modules\CQHttp\Events\CQEvent;
+use App\Modules\CQHttp\Events\CQPrivateMessageEvent;
 
 abstract class OnMessagePlugin
 {

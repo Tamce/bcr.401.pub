@@ -1,7 +1,7 @@
 <?php
 namespace App\Modules\Plugins;
 
-use App\Modules\CQHttp\CQEvent;
+use App\Modules\CQHttp\Events\CQEvent;
 
 class EchoPlugin extends OnMessagePlugin
 {
