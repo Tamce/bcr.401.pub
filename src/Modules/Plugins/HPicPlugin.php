@@ -21,7 +21,8 @@ class HPicPlugin extends OnMessagePlugin
         if (file_exists(storage('/hpic.json'))) {
             $list = json_decode(file_get_contents(storage('/hpic.json')));
             if (!empty($list)) {
-                $e->reply(CQCode::image($list[array_rand($list)]));
+                $id = array_rand($list);
+                $e->reply("id: $id\n".CQCode::image($list[$id]));
                 return;
             } else {
                 $e->reply('图片列表为空，请稍后再试');
