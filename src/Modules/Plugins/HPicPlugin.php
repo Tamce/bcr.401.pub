@@ -17,7 +17,6 @@ class HPicPlugin extends OnMessagePlugin
         '涩图分类$' => 'category',
         '涩图 (.+)$' => 'query',
         '涩图$' => 'queryDefault',
-        '看涩图 (\d+)' => 'queryById',
         '上传涩图(.*)$' => 'upload',
         '涩图帮助$' => 'help',
     ];
@@ -35,9 +34,7 @@ class HPicPlugin extends OnMessagePlugin
 %涩图 [分类,可选,默认为 all]
     来一份已缓存的随机涩图
 %涩图 id
-    按id查看涩图，如果是互联网图片则只显示 url
-%看涩图 id
-    同上按id查看涩图，但会尝试下载互联网图片
+    按id查看涩图
 %上传涩图 [分类,可选] [图片/url]
     上传指定图片或url到指定分类的涩图库，默认分类为 default"
 EOD);
@@ -68,7 +65,7 @@ EOD);
     public function query(CQEvent $e, $category)
     {
         if (is_numeric($category)) {
-            return $this->queryById($e, $category, false);
+            return $this->queryById($e, $category, true);
         }
 
         $data = Image::where('downloaded', true);
@@ -102,7 +99,15 @@ EOD);
         if ($item->local_path) {
             $e->reply("id: {$item->id}\n".CQCode::image($item->local_path));
         } else if ($internet) {
-            $e->reply("[互联网图片] id: {$item->id}\nurl: {$item->origin_url}\n".CQCode::image($item->origin_url));
+            $data = Image::download($item->origin_url);
+            if (empty($data)) {
+                $e->reply("[互联网图片，下载失败]\nid: {$item->id}\nurl: {$item->origin_url}");
+            } else {
+                $item->local_path = $data['local_path'];
+                $item->downloaded = 1;
+                $item->save();
+                $e->reply("id: {$item->id}\n".CQCode::image($item->local_path));
+            }
         } else {
             $e->reply("[互联网图片，未下载]\nid: {$item->id}\nurl: {$item->origin_url}");
         }
