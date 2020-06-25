@@ -50,14 +50,14 @@ class HPicPlugin extends OnMessagePlugin
             return $this->queryById($e, $category);
         }
 
-        // $data = Image::where('downloaded', true);
-        $data = Image::whereRaw('true');
+        $data = Image::where('downloaded', true);
+        // $data = Image::whereRaw('true');
         if ($category != 'all') {
             $data = $data->where('category', $category);
         }
         $data = $data->get();
         if ($data->isEmpty()) {
-            $e->reply("类别 `$category` 的涩图存量为 0");
+            $e->reply("类别 `$category` 的已缓存涩图存量为 0");
         } else {
             $item = $data->random();
             $e->reply("id: {$item->id}\n".CQCode::image($item->local_path));
@@ -81,7 +81,7 @@ class HPicPlugin extends OnMessagePlugin
         if ($item->local_path) {
             $e->reply("id: {$item->id}\n".CQCode::image($item->local_path));
         } else {
-            $e->reply("id: {$item->id}\n".CQCode::image($item->origin_url));
+            $e->reply("[互联网图片] id: {$item->id}\nurl: {$item->origin_url}\n".CQCode::image($item->origin_url));
         }
     }
 
