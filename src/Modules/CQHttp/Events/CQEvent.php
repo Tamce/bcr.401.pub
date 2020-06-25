@@ -55,7 +55,22 @@ abstract class CQEvent
     protected $response = ['at_sender' => false];
     public function getResponse()
     {
-        return $this->response;
+        if ($this->isDebug()) {
+            return "raw msg:\n".$this->rawData('raw_message')."\n========\n\nresponse:\n".$this->response;
+        } else {
+            return $this->response;
+        }
+    }
+
+    protected $debug = false;
+    public function setDebug($debug = true)
+    {
+        $this->debug = $debug;
+    }
+
+    public function isDebug()
+    {
+        return $this->debug;
     }
 
     public function reply($text = null, $append = true)

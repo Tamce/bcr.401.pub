@@ -31,8 +31,16 @@ abstract class OnMessagePlugin
                 $reg = '/'. ($_ENV['CMD_PREFIX'] ?? '') . $key . '/s';
             }
 
-            if (preg_match($reg, $e->getRawMessage(), $matches)) {
+            $msg = $e->getRawMessage();
+            if (strlen($msg) > 6 and substr($msg, 0, 6) == '%debug') {
+                $msg = substr($msg, 6);
+            }
+
+            if (preg_match($reg, $msg, $matches)) {
                 array_shift($matches);
+                if ($e->isDebug()) {
+                    $e->reply("[debug:calling $handler]\n");
+                }
                 if (is_callable([$this, $handler])) {
                     return app()->call([$this, $handler], $matches);
                 }
