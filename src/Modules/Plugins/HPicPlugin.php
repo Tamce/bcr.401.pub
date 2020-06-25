@@ -46,7 +46,7 @@ class HPicPlugin extends OnMessagePlugin
 
     public function query(CQEvent $e, $category)
     {
-        if (intval($category) == $category) {
+        if (is_numeric($category)) {
             return $this->queryById($e, $category);
         }
 
@@ -66,7 +66,7 @@ class HPicPlugin extends OnMessagePlugin
 
     public function queryById(CQEvent $e, $id)
     {
-        if (intval($id) != $id) {
+        if (!is_numeric($id)) {
             return $e->reply('请输入数字 id');
         }
         $item = Image::find($id);
