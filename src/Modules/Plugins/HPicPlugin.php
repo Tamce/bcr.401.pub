@@ -79,11 +79,14 @@ EOD);
         $e->reply('找到 '.$result->count().' 张符合的涩图:');
         if ($result->count() <= 2) {
             foreach ($result as $item) {
-                $e->reply("\nid: {$item->id}\n".CQCode::image($this->getUrlOrDownload($item)));
+                $e->reply("\nid: {$item->id}\n备注: {$item->comment}\n".CQCode::image($this->getUrlOrDownload($item)));
             }
         } else {
+            $i = 1;
+            $cnt = $result->count();
             foreach ($result as $item) {
-                $e->reply("\nid: {$item->id}");
+                $e->reply("\n[$i/$cnt] id: {$item->id}, 备注: {$item->comment}");
+                $i++;
             }
         }
     }
