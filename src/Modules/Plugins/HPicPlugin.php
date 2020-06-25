@@ -18,19 +18,19 @@ class HPicPlugin extends OnMessagePlugin
         '涩图 (\w+)$' => 'query',
         '涩图$' => 'queryDefault',
         '查涩图 (\d+)' => 'queryById',
-        '上传涩图 (.*)$' => 'upload',
+        '上传涩图(.*)$' => 'upload',
     ];
     protected $listen = '*';
 
     public function count(CQEvent $e)
     {
         $data = Image::select(DB::raw('count(*) as cnt'), 'downloaded')->groupBy('downloaded')->get();
-        $e->reply('涩图存量共 '. $data->sum('cnt') ." 份，其中\n");
+        $e->reply('涩图存量共 '. $data->sum('cnt') ." 份，其中");
         foreach ($data as $downloadGrouped) {
             if ($downloadGrouped->downloaded) {
-                $e->reply("已下载 {$downloadGrouped->cnt} 份\n");
+                $e->reply("\n已下载 {$downloadGrouped->cnt} 份");
             } else {
-                $e->reply("未下载 {$downloadGrouped->cnt} 份\n");
+                $e->reply("\n未下载 {$downloadGrouped->cnt} 份");
             }
         }
     }
@@ -50,9 +50,14 @@ class HPicPlugin extends OnMessagePlugin
             return $this->queryById($e, $category);
         }
 
-        $data = Image::where('downloaded', true)->where('category', $category)->get();
+        // $data = Image::where('downloaded', true);
+        $data = Image::whereRaw('true');
+        if ($category != 'all') {
+            $data = $data->where('category', $category);
+        }
+        $data = $data->get();
         if ($data->isEmpty()) {
-            $e->reply("类别 `$category` 的已缓存涩图存量为 0");
+            $e->reply("类别 `$category` 的涩图存量为 0");
         } else {
             $item = $data->random();
             $e->reply("id: {$item->id}\n".CQCode::image($item->local_path));
@@ -61,7 +66,7 @@ class HPicPlugin extends OnMessagePlugin
 
     public function queryDefault(CQEvent $e)
     {
-        $this->query($e, 'default');
+        $this->query($e, 'all');
     }
 
     public function queryById(CQEvent $e, $id)
@@ -71,17 +76,18 @@ class HPicPlugin extends OnMessagePlugin
         }
         $item = Image::find($id);
         if (empty($item)) {
-            return $e->reply('涩图 id 不存在');
+            return $e->reply("涩图 id: $id 不存在");
         }
         if ($item->local_path) {
             $e->reply("id: {$item->id}\n".CQCode::image($item->local_path));
         } else {
-            $e->reply("id: {$item->id}\n".CQCode::image($item->url));
+            $e->reply("id: {$item->id}\n".CQCode::image($item->origin_url));
         }
     }
 
     public function upload(CQPrivateMessageEvent $e, $text)
     {
+        $text = trim($text);
         $seg = explode(' ', $text, 2);
         $category = 'default';
         if (count($seg) > 1) {
