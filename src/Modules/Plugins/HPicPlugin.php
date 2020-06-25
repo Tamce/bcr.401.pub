@@ -17,6 +17,7 @@ class HPicPlugin extends OnMessagePlugin
         '涩图分类$' => 'category',
         '涩图备注 (\w+) (.+)' => 'comment',
         '涩图搜索 (.+)' => 'search',
+        '删除涩图 (\w+)' => 'delete',
         '涩图 (.+)$' => 'query',
         '涩图$' => 'queryDefault',
         '上传涩图(.*)$' => 'upload',
@@ -44,6 +45,16 @@ class HPicPlugin extends OnMessagePlugin
 %上传涩图 [分类,可选] [图片/url]
     上传指定图片或url到指定分类的涩图库，默认分类为 default"
 EOD);
+    }
+
+    public function delete(CQEvent $e, $id)
+    {
+        $img = Image::find($id);
+        if (empty($img)) {
+            return $e->reply("未找到 id 为 $id 的涩图");
+        }
+        $img->delete();
+        return $e->reply("成功删除涩图 $id");
     }
 
     public function comment(CQEvent $e, $id, $comment)
@@ -129,7 +140,12 @@ EOD);
         }
         $item = Image::find($id);
         if (empty($item)) {
-            return $e->reply("涩图 id: $id 不存在");
+            $data = Image::where('id', '>', $id)->first();
+            $e->reply("涩图 id: $id 不存在");
+            if (!empty($data)) {
+                $e->reply("，已经自动显示下一张涩图\n");
+                $item = $data;
+            }
         }
 
         $url = $this->getUrlOrDownload($item);
