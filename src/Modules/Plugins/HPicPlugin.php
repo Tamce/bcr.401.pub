@@ -14,30 +14,18 @@ class HPicPlugin extends OnMessagePlugin
     ];
     protected $listen = '*';
 
-    public function getPic(CQEvent $e, Client $cli)
+    public function getPic(CQEvent $e)
     {
-        try {
-            $res = $cli->get('https://yande.re/post?tags=princess_connect', [
-                'timeout' => 5,
-                'proxy' => 'http://127.0.0.1:1087'
-            ]);
-        } catch (Exception $err) {
-            $e->reply('Error: '.$err->getMessage());
-            return;
-        }
-        if ($res->getStatusCode() != 200) {
-            $e->reply('获取失败, 状态码 '.$res->getStatusCode());
-            return;
-        }
-        $dom = new Dom;
-        $html = $res->getBody()->getContents();
-        $dom->load($html);
-        $result = $dom->find('a.thumb img')->toArray();
-        $result = $result[array_rand($result)];
-        if (preg_match('/src="([^"]*)"/', $result, $matches)) {
-            $e->reply(CQCode::image($matches[1]));
+        if (file_exists(storage('/hpic.json'))) {
+            $list = json_decode(file_get_contents(storage('/hpic.json')));
+            if (!empty($list)) {
+                $e->reply(CQCode::image($list[array_rand($list)]));
+                return;
+            } else {
+                $e->reply('图片列表为空，请稍后再试');
+            }
         } else {
-            $e->reply('获取失败');
+            $e->reply('图片列表为空，请稍后再试');
         }
     }
 }

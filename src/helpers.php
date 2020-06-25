@@ -21,7 +21,14 @@ function app($key = null)
     }
 }
 
-function json($data, $status = 200, $headers = []) {
+function json($data, $status = 200, $headers = [])
+{
     $response = Response::create(json_encode($data), $status, $headers);
     return $response->withHeaders(['Content-Type' => 'application/json']);
+}
+
+function storage($path = null)
+{
+    $path = ltrim($path ?? '', '/');
+    return realpath(dirname(__DIR__.'/../storage')) . $path;
 }

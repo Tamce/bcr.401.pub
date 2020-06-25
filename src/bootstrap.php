@@ -28,7 +28,3 @@ with(new EventServiceProvider($app))->register();
 with(new RoutingServiceProvider($app))->register();
 
 require 'routes.php';
-
-$app->instance(Request::class, Request::createFromGlobals());
-$response = app('router')->dispatch($app->get(Request::class));
-$response->send();
