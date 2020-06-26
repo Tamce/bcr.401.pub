@@ -1,6 +1,7 @@
 <?php
 require __DIR__.'/../vendor/autoload.php';
 
+use App\Modules\CQHttp\CQHttp;
 use App\Modules\Session;
 use Illuminate\Events\EventServiceProvider;
 use Illuminate\Events\Dispatcher;
@@ -8,6 +9,8 @@ use Illuminate\Routing\RoutingServiceProvider;
 use Symfony\Component\Dotenv\Dotenv;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Support\Facades\DB;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
 require 'helpers.php';
 
@@ -15,11 +18,6 @@ $app = app();
 $dotenv = new Dotenv();
 $dotenv->loadEnv(__DIR__.'/../.env');
 $app->instance('dotenv', $dotenv);
-
-$app->singleton(GuzzleHttp\Client::class, function () {
-    return new GuzzleHttp\Client;
-});
-$app->alias(GuzzleHttp\Client::class, 'http.client');
 
 /* Session Helper */
 $app->singleton(Session::class, function () {
@@ -32,6 +30,19 @@ $app->alias(Session::class, 'session');
 /* Router */
 with(new EventServiceProvider($app))->register();
 with(new RoutingServiceProvider($app))->register();
+
+/* Logger */
+app()->singleton('logger', function () {
+    $logger = new Logger('default');
+    $logger->pushHandler(new StreamHandler(storage('default.log')));
+    return $logger;
+});
+
+/* CQHttp Helper */
+app()->singleton(CQHttp::class, function () {
+    return app()->make(CQHttp::class);
+});
+app()->alias(CQHttp::class, 'cqhttp');
 
 /* Eloquent */
 $capsule = new Capsule;

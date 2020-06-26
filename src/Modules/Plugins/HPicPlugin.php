@@ -3,8 +3,11 @@ namespace App\Modules\Plugins;
 
 use App\Models\Image;
 use App\Modules\CQHttp\CQCode;
+use App\Modules\CQHttp\CQHttp;
 use App\Modules\CQHttp\Events\CQEvent;
+use App\Modules\CQHttp\Events\CQMessageEvent;
 use App\Modules\CQHttp\Events\CQPrivateMessageEvent;
+use App\Modules\CQHttp\Events\IMessageEvent;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\DB;
@@ -138,7 +141,7 @@ EOD);
         $this->query($e, 'all');
     }
 
-    public function queryById(CQEvent $e, $id)
+    public function queryById(CQMessageEvent $e, $id)
     {
         if (!is_numeric($id)) {
             return $e->reply('请输入数字 id');
@@ -147,22 +150,20 @@ EOD);
         if (empty($item)) {
             $data = Image::where('id', '>', $id)->first();
             $e->reply("涩图 id: $id 不存在");
-            if (!empty($data)) {
-                $e->reply("，已经自动显示下一张涩图\n");
-                $item = $data;
-            }
             if (empty($data))
                 return;
+            $e->reply("，已经自动显示下一张涩图\n");
+            $item = $data;
         }
 
         $url = $this->getUrlOrDownload($item);
         if (empty($item->local_path)) {
             $e->reply("[互联网图片,下载失败]\nurl: $url\n");
         }
-        $e->reply("id: {$item->id}\n".CQCode::image($url));
+        $this->sendPicByApi($e, $item);
     }
 
-    public function upload(CQPrivateMessageEvent $e, $text)
+    public function upload(CQMessageEvent $e, $text)
     {
         $text = trim($text);
         $category = substr($text, 0, strpos($text, '['));
@@ -197,6 +198,7 @@ EOD);
         }
     }
 
+    /*******************************/
     protected function getUrlOrDownload(Image $item)
     {
         if ($item->local_path) {
@@ -211,6 +213,17 @@ EOD);
                 $item->save();
                 return $item->local_path;
             }
+        }
+    }
+
+    protected function sendPicByApi(CQMessageEvent $e, Image $item)
+    {
+        $cq = CQHttp::instance();
+        $message = "id: {$item->id}\n".CQCode::image($this->getUrlOrDownload($item));
+        $ret = $cq->sendMessage($e->getMessageType(), $e->getMessageSourceId(), $message);
+        if ($ret != 0) {
+            $cq->sendMessage($e->getMessageType(), $e->getMessageSourceId(),
+                "id: {$item->id} 图片发送超时，可能图炸了。\n可以通过「%覆盖图片」指令手动覆盖图片。\n下载 url：\nhttps://bcr.401.pub/download/image?id={$item->id}");
         }
     }
 }

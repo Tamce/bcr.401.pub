@@ -10,6 +10,7 @@ $route->namespace('App\\Controllers')->group(function () use ($route) {
     $route->get('/', function (Request $request) {
         return 'Hello';
     });
+    $route->get('/download/image', 'EventHandler@downloadImage');
     $route->post('/cq_event', 'EventHandler@handle');
 
 });

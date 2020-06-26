@@ -1,28 +1,16 @@
 <?php
 namespace App\Modules\CQHttp\Events;
 
-class CQPrivateMessageEvent extends CQEvent
+class CQPrivateMessageEvent extends CQMessageEvent
 {
-    public function getSubType($type = null)
+    public function getMessageType()
     {
-        if (is_null($type))
-            return $this->rawData('sub_type');
-        else
-            return $this->rawData('sub_type') == $type;
-    }
-    public function getSenderId()
-    {
-        return $this->rawData('user_id');
+        return 'user';
     }
 
-    public function getMessage()
+    public function getMessageSourceId()
     {
-        return $this->rawData('message');
-    }
-
-    public function getRawMessage()
-    {
-        return $this->rawData('raw_message');
+        return $this->getSenderId();
     }
 
 }

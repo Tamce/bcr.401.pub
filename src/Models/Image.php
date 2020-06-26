@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Exception;
+use GuzzleHttp\Client;
 
 class Image extends Model
 {
@@ -16,7 +17,7 @@ class Image extends Model
     static public function download($url, $category = 'default')
     {
         set_time_limit(6);
-        $client = app('http.client');
+        $client = new Client;
         try {
             $data = $client->get($url, [
                 'timeout' => 5,

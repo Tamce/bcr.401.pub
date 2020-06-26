@@ -1,8 +1,21 @@
 <?php
 namespace App\Modules\CQHttp\Events;
 
-class CQGroupMessageEvent extends CQPrivateMessageEvent
+use Illuminate\Contracts\Validation\ImplicitRule;
+
+class CQGroupMessageEvent extends CQMessageEvent
 {
+    public function getMessageType()
+    {
+        return 'group';
+    }
+
+    public function getMessageSourceId()
+    {
+        return $this->getGroupId();
+    }
+
+
     public function getGroupId()
     {
         return $this->rawData('group_id');
@@ -17,5 +30,5 @@ class CQGroupMessageEvent extends CQPrivateMessageEvent
         $this->response['at_sender'] = $bool;
         return $this;
     }
-    
+
 }
