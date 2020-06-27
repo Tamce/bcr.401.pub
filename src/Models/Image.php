@@ -19,9 +19,10 @@ class Image extends Model
         set_time_limit(6);
         $client = new Client;
         try {
-            $data = $client->get($url, [
+            $res = $client->get($url, [
                 'timeout' => 5,
-            ])->getBody()->getContents();
+            ]);
+            $data = $res->getBody()->getContents();
         } catch (Exception $e) {
             return false;
         }
@@ -30,8 +31,14 @@ class Image extends Model
         }
 
         $ext = substr($url, strrpos($url, '.'));
-        if (strlen($ext > 5)) {
-            $ext = 'jpg';
+        $type = $res->getHeader('Content-Type');
+        if (empty($type)) {
+            $ext = '.jpg';
+        } else {
+            $ext = '.'.substr($type, strrpos($type, '/') + 1);
+        }
+        if (strlen($ext) > 5 or empty($ext)) {
+            $ext = '.jpg';
         }
         $name = Str::random(32).$ext;
         $name = "downloaded/$name";
