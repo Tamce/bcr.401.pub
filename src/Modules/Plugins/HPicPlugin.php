@@ -282,15 +282,15 @@ EOD);
         if (empty($item->local_path)) {
             $before = $before."\n[互联网图片] 下载失败，原始 url:\n {$item->origin_url}";
         }
-        $message = $before."id: {$item->id}\n".CQCode::image($url).$after;
+        $message = $before."id: {$item->id}\nhttps://bcr.401.pub/download/image?id={$item->id}\n".CQCode::image($url).$after;
         $ret = $cq->sendMessage($e->getMessageType(), $e->getMessageSourceId(), $message);
-        if ($ret != 0) {
-            if ($ret == -1 || $ret == -11) {
-                $cq->sendMessage($e->getMessageType(), $e->getMessageSourceId(),
-                    "id: {$item->id} 图片发送超时，图片 url：\nhttps://bcr.401.pub/download/image?id={$item->id}");
-            } else {
-                $e->reply("Call CQHttp api failed, ret $ret");
-            }
-        }
+        // if ($ret != 0) {
+        //     if ($ret == -1 || $ret == -11) {
+        //         $cq->sendMessage($e->getMessageType(), $e->getMessageSourceId(),
+        //             "id: {$item->id} 图片发送超时，图片 url：\nhttps://bcr.401.pub/download/image?id={$item->id}");
+        //     } else {
+        //         $e->reply("Call CQHttp api failed, ret $ret");
+        //     }
+        // }
     }
 }

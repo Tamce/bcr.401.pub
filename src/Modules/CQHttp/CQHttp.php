@@ -67,7 +67,7 @@ class CQHttp
                     'request' => $request,
                     'response' => $content,
                 ]);
-                return -1;
+                return -2;
             }
             if ($data['retcode'] != 0) {
                 app('logger')->warning("cqhttp api ret {$data['retcode']}", [
