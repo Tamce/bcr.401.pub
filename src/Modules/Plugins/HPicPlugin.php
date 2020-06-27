@@ -180,18 +180,13 @@ EOD);
         $item = Image::find($id);
         if (empty($item)) {
             $data = Image::where('id', '>', $id)->first();
-            $e->reply("涩图 id: $id 不存在");
             if (empty($data))
-                return;
-            $e->reply("，已经自动显示下一张涩图\n");
+                return $e->reply("涩图 id: $id 不存在");
+            $before = "涩图 id: $id 不存在，已经自动显示下一张涩图\n";
             $item = $data;
         }
 
-        $url = $this->getUrlOrDownload($item);
-        if (empty($item->local_path)) {
-            $e->reply("[互联网图片,下载失败]\nurl: $url\n");
-        }
-        $this->sendPicByApi($e, $item);
+        $this->sendPicByApi($e, $item, $before);
     }
 
     public function replace(CQMessageEvent $e, $text)
@@ -280,10 +275,14 @@ EOD);
         }
     }
 
-    protected function sendPicByApi(CQMessageEvent $e, Image $item)
+    protected function sendPicByApi(CQMessageEvent $e, Image $item, $before = '', $after = '')
     {
         $cq = CQHttp::instance();
-        $message = "id: {$item->id}\n".CQCode::image($this->getUrlOrDownload($item));
+        $url = $this->getUrlOrDownload($item);
+        if (empty($item->local_path)) {
+            $before = $before."\n[互联网图片] 下载失败，原始 url:\n {$item->origin_url}";
+        }
+        $message = $before."id: {$item->id}\n".CQCode::image($url).$after;
         $ret = $cq->sendMessage($e->getMessageType(), $e->getMessageSourceId(), $message);
         if ($ret != 0) {
             if ($ret == -1 || $ret == -11) {
