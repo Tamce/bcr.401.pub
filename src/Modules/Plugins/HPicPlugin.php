@@ -19,9 +19,10 @@ class HPicPlugin extends OnMessagePlugin
         '涩图存量$' => 'count',
         '涩图分类$' => 'category',
         '涩图备注 (\d+) (.+)' => 'comment',
-        '涩图搜索 (.+)' => 'search',
+        '覆盖涩图(.*)' => 'replace',
         '删除涩图 (\d+)' => 'delete',
-        '涩图 (.+)$' => 'query',
+        '涩图 (.+)$' => 'search',
+        '涩图分类 (.+)$' => 'queryByCategory',
         '涩图$' => 'queryDefault',
         '上传涩图(.*)$' => 'upload',
         '涩图帮助$' => 'help',
@@ -37,17 +38,19 @@ class HPicPlugin extends OnMessagePlugin
     查看涩图总量及已缓存的数量
 %涩图分类
     查看涩图分类有哪些
-%涩图 [分类,可选,默认为 all]
+%涩图 [搜索备注]
     来一份已缓存的随机涩图
 %涩图 id
     按id查看涩图
 %涩图备注 id 备注内容
     给涩图写备注方便搜索
+%覆盖涩图 id 图片
+    使用上传的图片覆盖 id
 %删除涩图 id
     删除指定涩图
 %涩图搜索 关键词
     搜索备注含有关键词的涩图
-%上传涩图 [分类,可选] [图片/url]
+%上传涩图 [备注,可选] [图片/url]
     上传指定图片或url到指定分类的涩图库，默认分类为 default"
 EOD);
     }
@@ -116,7 +119,7 @@ EOD);
         }
     }
 
-    public function query(CQEvent $e, $category)
+    public function queryByCategory(CQEvent $e, $category)
     {
         if (is_numeric($category)) {
             return $this->queryById($e, $category);
@@ -138,7 +141,7 @@ EOD);
 
     public function queryDefault(CQEvent $e)
     {
-        $this->query($e, 'all');
+        $this->queryByCategory($e, 'all');
     }
 
     public function queryById(CQMessageEvent $e, $id)
@@ -163,36 +166,69 @@ EOD);
         $this->sendPicByApi($e, $item);
     }
 
-    public function upload(CQMessageEvent $e, $text)
+    public function replace(CQMessageEvent $e, $text)
     {
         $text = trim($text);
-        $category = substr($text, 0, strpos($text, '['));
-        if (empty($category)) {
-            $category = 'default';
+        $id = trim(substr($text, 0, strpos($text, '[')));
+        if (!is_numeric($id)) {
+            return $e->reply("id `$id` 不是有效的数字 id");
+        }
+
+        $last = Image::select('id')->orderBy('id', 'desc')->limit(1)->first();
+        if (empty($last)) {
+            return $e->reply("数据库查询失败，可能是还没有数据");
+        }
+        if ($id > $last or $id <= 0) {
+            return $e->reply("id 不合法，合法的 id 范围为 1-$last");
         }
 
         if (preg_match('/\[CQ:image,file=([^\],]*),{0,1}.*\]/', $text, $matches)) {
             $path = $matches[1];
-            $item = Image::create([
-                'category' => $category,
+            $img = Image::updateOrCreate(['id' => $id], [
+                'id' => $id,
+                'category' => 'uploaded',
                 'local_path' => $path,
                 'downloaded' => true,
                 'extra' => [
                     'sender' => $e->getSenderId(),
                 ],
             ]);
-            $e->reply("上传至分类 `$category` 成功！id: $item->id");
-        } else if (preg_match('/(http[^\s]+)/', $text, $matches)) {
-            $url = $matches[1];
+            return $e->reply("涩图覆盖成功！id: {$img->id}");
+        } else {
+            return $e->reply('未发现待上传涩图');
+        }
+        
+    }
+
+    public function upload(CQMessageEvent $e, $text)
+    {
+        $text = trim($text);
+        $comment = trim(substr($text, 0, strpos($text, '[')));
+
+        if (preg_match('/\[CQ:image,file=([^\],]*),{0,1}.*\]/', $text, $matches)) {
+            $path = $matches[1];
             $item = Image::create([
-                'category' => $category,
-                'origin_url' => $url,
-                'downloaded' => false,
+                'category' => 'uploaded',
+                'local_path' => $path,
+                'downloaded' => true,
+                'comment' => empty($comment) ? null : $comment,
                 'extra' => [
                     'sender' => $e->getSenderId(),
                 ],
             ]);
-            $e->reply("上传至分类 `$category` 成功！id: $item->id");
+            $e->reply("上传成功！id: $item->id");
+        } else if (preg_match('/(http[^\s]+)/', $text, $matches)) {
+            $url = $matches[1];
+            $item = Image::create([
+                'category' => 'uploaded',
+                'origin_url' => $url,
+                'downloaded' => false,
+                'comment' => empty($comment) ? null : $comment,
+                'extra' => [
+                    'sender' => $e->getSenderId(),
+                ],
+            ]);
+            $e->reply("上传成功！id: $item->id");
         } else {
             $e->reply('未发现待上传涩图');
         }
@@ -222,8 +258,12 @@ EOD);
         $message = "id: {$item->id}\n".CQCode::image($this->getUrlOrDownload($item));
         $ret = $cq->sendMessage($e->getMessageType(), $e->getMessageSourceId(), $message);
         if ($ret != 0) {
-            $cq->sendMessage($e->getMessageType(), $e->getMessageSourceId(),
-                "id: {$item->id} 图片发送超时，可能图炸了。\n可以通过「%覆盖图片」指令手动覆盖图片。\n下载 url：\nhttps://bcr.401.pub/download/image?id={$item->id}");
+            if ($ret == -1 || $ret == -11) {
+                $cq->sendMessage($e->getMessageType(), $e->getMessageSourceId(),
+                    "id: {$item->id} 图片发送超时，图片 url：\nhttps://bcr.401.pub/download/image?id={$item->id}");
+            } else {
+                $e->reply("Call CQHttp api failed, ret $ret");
+            }
         }
     }
 }

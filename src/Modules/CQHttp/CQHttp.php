@@ -3,6 +3,7 @@ namespace App\Modules\CQHttp;
 
 use App\Modules\CQHttp\Events\CQEvent;
 use App\Modules\CQHttp\Events\CQGroupMessageEvent;
+use App\Modules\CQHttp\Events\CQMessageEvent;
 use App\Modules\CQHttp\Events\CQPrivateMessageEvent;
 use Exception;
 use GuzzleHttp\Client;
@@ -37,6 +38,7 @@ class CQHttp
         app()->instance(CQEvent::class, $e);
         app()->alias(CQEvent::class, CQPrivateMessageEvent::class);
         app()->alias(CQEvent::class, CQGroupMessageEvent::class);
+        app()->alias(CQEvent::class, CQMessageEvent::class);
         $this->event->dispatch($e->eventType(), $e);
         return $e->getResponse();
     }
@@ -49,7 +51,7 @@ class CQHttp
 
         try {
             $request = [
-                "$type" => $targetId,
+                "{$type}_id" => $targetId,
                 'message' => $message,
                 'auto_escape' => $autoEscape,
             ];
@@ -57,14 +59,22 @@ class CQHttp
                 'json' => $request,
                 'timeout' => 5,
             ]);
-            $data = json_decode($response->getBody()->getContents());
-            if (empty(@$data['retcode'])) {
+            $content = $response->getBody()->getContents();
+            $data = json_decode($content, true);
+            if (!isset($data['retcode'])) {
                 app('logger')->warning('Unexpected cqhttp api response.', [
                     'api' => 'send_msg',
                     'request' => $request,
-                    'response' => $response->getBody()->getContents(),
+                    'response' => $content,
                 ]);
                 return -1;
+            }
+            if ($data['retcode'] != 0) {
+                app('logger')->warning("cqhttp api ret {$data['retcode']}", [
+                    'api' => 'send_msg',
+                    'request' => $request,
+                    'response' => $content,
+                ]);
             }
             return $data['retcode'];
         } catch (Exception $e) {

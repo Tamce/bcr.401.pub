@@ -3,7 +3,7 @@ namespace App\Modules\Plugins;
 
 use App\Modules\CQHttp\CQHttp;
 use App\Modules\CQHttp\Events\CQEvent;
-use App\Modules\CQHttp\Events\CQPrivateMessageEvent;
+use App\Modules\CQHttp\Events\CQMessageEvent;
 
 abstract class OnMessagePlugin
 {
@@ -22,7 +22,7 @@ abstract class OnMessagePlugin
         $cq->on("message.$this->listen", [$this, $this->listen == '*' ? 'handleWild' : 'handle']);
     }
 
-    public function handle(CQPrivateMessageEvent $e)
+    public function handle(CQMessageEvent $e)
     {
         $msg = $e->getRawMessage();
         if (strlen($msg) > 6 and substr($msg, 0, 6) == '%debug') {

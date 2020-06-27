@@ -35,6 +35,9 @@ with(new RoutingServiceProvider($app))->register();
 app()->singleton('logger', function () {
     $logger = new Logger('default');
     $logger->pushHandler(new StreamHandler(storage('default.log')));
+    if ($_ENV['APP_DEBUG'] ?? false) {
+        $logger->pushHandler(new StreamHandler('php://stdout'));
+    }
     return $logger;
 });
 
