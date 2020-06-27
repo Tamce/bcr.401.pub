@@ -40,7 +40,7 @@ app()->singleton('logger', function () {
 
 /* CQHttp Helper */
 app()->singleton(CQHttp::class, function () {
-    return app()->make(CQHttp::class);
+    return new CQHttp(app()->make(Dispatcher::class));
 });
 app()->alias(CQHttp::class, 'cqhttp');
 
