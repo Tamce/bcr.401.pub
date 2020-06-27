@@ -25,6 +25,7 @@ class HPicPlugin extends OnMessagePlugin
         '涩图分类 (.+)$' => 'queryByCategory',
         '涩图$' => 'queryDefault',
         '上传涩图(.*)$' => 'upload',
+        '备注查询(.*)' => 'queryComment',
         '涩图帮助$' => 'help',
     ];
     protected $listen = '*';
@@ -38,8 +39,8 @@ class HPicPlugin extends OnMessagePlugin
     查看涩图总量及已缓存的数量
 %涩图分类
     查看涩图分类有哪些
-%涩图 [搜索备注]
-    来一份已缓存的随机涩图
+%涩图 [搜索关键词]
+    来一份已缓存的随机涩图（或者按关键词搜索）
 %涩图 id
     按id查看涩图
 %涩图备注 id 备注内容
@@ -50,6 +51,8 @@ class HPicPlugin extends OnMessagePlugin
     删除指定涩图
 %涩图搜索 关键词
     搜索备注含有关键词的涩图
+%备注查询 [页码,可选,默认为1]
+    统计所有已经添加备注的涩图
 %上传涩图 [备注,可选] [图片/url]
     上传指定图片或url到指定分类的涩图库，默认分类为 default"
 EOD);
@@ -142,6 +145,25 @@ EOD);
     public function queryDefault(CQEvent $e)
     {
         $this->queryByCategory($e, 'all');
+    }
+
+    public function queryComment(CQMessageEvent $e, $page)
+    {
+        $page = trim($page);
+        if (empty($page)) {
+            $page = 1;
+        }
+        if (!is_numeric($page)) {
+            return $e->reply('页码必须为数字');
+        }
+        $e->reply("涩图备注统计：第 $page 页:\n");
+        $data = Image::select('id', 'comment')->whereNotNull('comment')->skip(($page - 1) * 5)->limit(5)->get();
+        if ($data->isEmpty()) {
+            return $e->reply('本页没有记录了');
+        }
+        foreach ($data as $item) {
+            $e->reply("\n{$item->id}: {$item->comment}");
+        }
     }
 
     public function queryById(CQMessageEvent $e, $id)
