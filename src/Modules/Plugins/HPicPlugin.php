@@ -82,6 +82,11 @@ EOD);
 
     public function search(CQEvent $e, $comment)
     {
+        $comment = trim($comment);
+        if (is_numeric($comment)) {
+            return $this->queryById($e, $comment);
+        }
+
         $result = Image::where('comment', 'like', "%$comment%")->get();
         if ($result->isEmpty()) {
             return $e->reply('未找到符合的涩图');
@@ -139,7 +144,7 @@ EOD);
             $e->reply("类别 `$category` 的已缓存涩图存量为 0");
         } else {
             $item = $data->random();
-            $e->reply("id: {$item->id}\n".CQCode::image($item->local_path));
+            $this->sendPicByApi($e, $item);
         }
     }
 
