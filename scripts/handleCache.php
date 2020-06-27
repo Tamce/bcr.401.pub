@@ -3,19 +3,20 @@ use App\Models\Image;
 
 require '../src/bootstrap.php';
 
-$i = 1;
+$i = 0;
 foreach (Image::all() as $img) {
-    echo "\r[$i]   ";
+    echo "\r[{$img->id}] ";
     if (!file_exists(storage("/image/{$img->local_path}"))) {
+        echo "Missing...";
         $new_path = Image::handleCQCache($img->local_path);
         if (file_exists(storage("/image/$new_path"))) {
             $img->local_path = $new_path;
             $img->save();
+            $i++;
             echo " Updated.\n";
         } else {
             echo " Failed.\n";
         }
     }
-    $i++;
 }
-echo "\nDone!\n";
+echo "\nDone! $i record fixed.\n";
