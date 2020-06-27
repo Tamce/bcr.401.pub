@@ -37,8 +37,9 @@ class HPicPlugin extends OnMessagePlugin
 
 %涩图存量
     查看涩图总量及已缓存的数量
-%涩图分类
+%涩图分类 [分类，可选]
     查看涩图分类有哪些
+    如果提供了分类名，那么会在指定分类随机返回涩图
 %涩图 [搜索关键词]
     来一份已缓存的随机涩图（或者按关键词搜索）
 %涩图 id
@@ -54,7 +55,7 @@ class HPicPlugin extends OnMessagePlugin
 %备注查询 [页码,可选,默认为1]
     统计所有已经添加备注的涩图
 %上传涩图 [备注,可选] [图片/url]
-    上传指定图片或url到指定分类的涩图库，默认分类为 default"
+    上传指定图片或url到指定分类的涩图库，默认分类为 uploaded"
 EOD);
     }
 
