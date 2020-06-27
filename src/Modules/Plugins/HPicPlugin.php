@@ -207,6 +207,7 @@ EOD);
 
         if (preg_match('/\[CQ:image,file=([^\],]*),{0,1}.*\]/', $text, $matches)) {
             $path = $matches[1];
+            $path = Image::handleCQCache($path);
             $img = Image::updateOrCreate(['id' => $id], [
                 'id' => $id,
                 'category' => 'uploaded',
@@ -230,6 +231,7 @@ EOD);
 
         if (preg_match('/\[CQ:image,file=([^\],]*),{0,1}.*\]/', $text, $matches)) {
             $path = $matches[1];
+            $path = Image::handleCQCache($path);
             $item = Image::create([
                 'category' => 'uploaded',
                 'local_path' => $path,

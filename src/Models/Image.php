@@ -40,4 +40,24 @@ class Image extends Model
             'downloaded' => 1,
         ];
     }
+
+    static public function handleCQCache($file)
+    {
+        if (!Str::startsWith($file, 'downloaded/')) {
+            $dest = storage("/image/downloaded/$file");
+            $src = storage("/image/$file");
+            if (file_exists($src)) {
+                file_put_contents($dest, file_get_contents($src));
+                return "downloaded/$file";
+            } else if (file_exists("$src.cqimg")) {
+                $data = file_get_contents("$src.cqimg");
+                if (preg_match('/url=(.*)/', $data, $matches)) {
+                    $url = $matches[1];
+                    $data = static::download($url);
+                    return $data['local_path'];
+                }
+            }
+        }
+        return $file;
+    }
 }
