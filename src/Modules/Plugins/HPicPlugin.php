@@ -156,7 +156,7 @@ EOD);
         if (!is_numeric($page)) {
             return $e->reply('页码必须为数字');
         }
-        $e->reply("涩图备注统计：第 $page 页:\n");
+        $e->reply("涩图备注统计，毎页显示 5 条：\n当前显示第 $page 页:\n");
         $data = Image::select('id', 'comment')->whereNotNull('comment')->skip(($page - 1) * 5)->limit(5)->get();
         if ($data->isEmpty()) {
             return $e->reply('本页没有记录了');
