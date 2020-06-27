@@ -177,6 +177,7 @@ EOD);
         if (!is_numeric($id)) {
             return $e->reply('请输入数字 id');
         }
+        $before = '';
         $item = Image::find($id);
         if (empty($item)) {
             $data = Image::where('id', '>', $id)->first();

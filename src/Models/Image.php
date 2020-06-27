@@ -30,6 +30,9 @@ class Image extends Model
         }
 
         $ext = substr($url, strrpos($url, '.'));
+        if (strlen($ext > 5)) {
+            $ext = 'jpg';
+        }
         $name = Str::random(32).$ext;
         $name = "downloaded/$name";
         file_put_contents(storage("/image/$name"), $data);
