@@ -35,6 +35,9 @@ class Image extends Model
         if (empty($type)) {
             $ext = '.jpg';
         } else {
+            if (is_array($type)) {
+                $type = $type[0];
+            }
             $ext = '.'.substr($type, strrpos($type, '/') + 1);
         }
         if (strlen($ext) > 5 or empty($ext)) {
