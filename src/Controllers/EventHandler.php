@@ -28,10 +28,14 @@ class EventHandler
 
     public function downloadImage(Request $request)
     {
-        if (empty($request->query('id'))) {
+        $id = $request->query('id');
+        if (empty($id)) {
             return Response::create('<center><h1>404 Image Not Found</h1></center>', 404);
         }
-        $img = Image::find($request->query('id'));
+        if (is_numeric($id))
+            $img = Image::find($id);
+        else
+            $img = Image::where('local_path', "downloaded/$id")->first();
         if (empty($img) or empty($img->local_path)) {
             return Response::create('<center><h1>404 Image Not Found</h1></center>', 404);
         }

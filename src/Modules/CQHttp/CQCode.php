@@ -8,7 +8,7 @@ class CQCode
     static public function image($url)
     {
         //  Image::make(storage("/image/$url"))->encode('webp')->save(storage("/image/$url.webp"));
-        return "$url\n[CQ:image,file=$url]";
+        return "[CQ:image,file=$url]";
     }
 
     static public function at($qq)

@@ -16,6 +16,7 @@ use PHPHtmlParser\Dom;
 class HPicPlugin extends OnMessagePlugin
 {
     protected $commands = [
+        '涩图信息 (\d+)$' => 'info',
         '涩图存量$' => 'count',
         '涩图分类$' => 'category',
         '涩图备注 (\d+) (.+)' => 'comment',
@@ -29,6 +30,14 @@ class HPicPlugin extends OnMessagePlugin
         '涩图帮助$' => 'help',
     ];
     protected $listen = '*';
+
+    public function info(CQEvent $e, $id)
+    {
+        $img = Image::find($id);
+        if (empty($img))
+            return $e->reply('Image not found');
+        return $e->reply($img->toJson(256));
+    }
 
     public function help(CQEvent $e)
     {
@@ -289,7 +298,15 @@ EOD);
         if (empty($item->local_path)) {
             $before = $before."\n[互联网图片] 下载失败，原始 url:\n {$item->origin_url}";
         }
-        $message = $before."id: {$item->id}\nhttps://bcr.401.pub/download/image?id={$item->id}\n".CQCode::image($url).$after;
+        $message = $before;
+        $message .= "id: {$item->id}\nhttps://bcr.401.pub/download/image?id={$item->id}\n".CQCode::image($url);
+        if (!empty($item->comment)) {
+            $message .= "\n图片备注: {$item->comment}";
+        }
+        $message .= $after;
+        if ($e->isDebug()) {
+            $message = $message."\n$url";
+        }
         $ret = $cq->sendMessage($e->getMessageType(), $e->getMessageSourceId(), $message);
     }
 }
