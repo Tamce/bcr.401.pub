@@ -33,29 +33,33 @@ class HPicPlugin extends OnMessagePlugin
     public function help(CQEvent $e)
     {
         $e->reply(<<<EOD
-帮助如下
-
+使用帮助:
+%涩图帮助
+====== 常用功能 ======
+%涩图
+    随机来一份已缓存的涩图
+%涩图 id
+    按 id 查看涩图
+%涩图 关键词
+    按关键词搜索涩图备注，注意关键词如果是纯数字会被当成 id
+%涩图分类 分类名
+    在指定分类中随机返回涩图
+%上传涩图 [备注,可选] [图片/url]
+    上传指定图片或网址到涩图库，在图片前面的内容会被当作备注设置给图片
+%涩图备注 id 备注内容
+    给指定的涩图设置备注内容，注意，备注是覆盖而不是追加
+%备注查询 [页码,可选,默认为1]
+    统计所有已经添加备注的涩图，毎页显示 5 条记录
 %涩图存量
     查看涩图总量及已缓存的数量
-%涩图分类 [分类，可选]
-    查看涩图分类有哪些
-    如果提供了分类名，那么会在指定分类随机返回涩图
-%涩图 [搜索关键词]
-    来一份已缓存的随机涩图（或者按关键词搜索）
-%涩图 id
-    按id查看涩图
-%涩图备注 id 备注内容
-    给涩图写备注方便搜索
+%涩图分类
+    查看目前的涩图分类有哪些
+
+====== 尽量不要使用，除非你知道你在干什么 ======
 %覆盖涩图 id 图片
-    使用上传的图片覆盖 id
+    使用上传的图片覆盖 id，请不要轻易使用，这个功能主要是为了修复炸图问题编写的
 %删除涩图 id
     删除指定涩图
-%涩图搜索 关键词
-    搜索备注含有关键词的涩图
-%备注查询 [页码,可选,默认为1]
-    统计所有已经添加备注的涩图
-%上传涩图 [备注,可选] [图片/url]
-    上传指定图片或url到指定分类的涩图库，默认分类为 uploaded"
 EOD);
     }
 
@@ -287,13 +291,5 @@ EOD);
         }
         $message = $before."id: {$item->id}\nhttps://bcr.401.pub/download/image?id={$item->id}\n".CQCode::image($url).$after;
         $ret = $cq->sendMessage($e->getMessageType(), $e->getMessageSourceId(), $message);
-        // if ($ret != 0) {
-        //     if ($ret == -1 || $ret == -11) {
-        //         $cq->sendMessage($e->getMessageType(), $e->getMessageSourceId(),
-        //             "id: {$item->id} 图片发送超时，图片 url：\nhttps://bcr.401.pub/download/image?id={$item->id}");
-        //     } else {
-        //         $e->reply("Call CQHttp api failed, ret $ret");
-        //     }
-        // }
     }
 }

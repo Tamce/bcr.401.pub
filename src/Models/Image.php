@@ -9,7 +9,7 @@ use GuzzleHttp\Client;
 class Image extends Model
 {
     protected $table = 'images';
-    protected $guarded = ['id'];
+    protected $guarded = [];
     protected $casts = [
         'extra' => 'array',
     ];
