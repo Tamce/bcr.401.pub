@@ -12,5 +12,6 @@ $route->namespace('App\\Controllers')->group(function () use ($route) {
     });
     $route->get('/download/image', 'EventHandler@downloadImage');
     $route->post('/cq_event', 'EventHandler@handle');
+    $route->get('/view/homework', 'ClanBattle@homework');
 
 });

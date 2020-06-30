@@ -17,6 +17,7 @@ class HPicPlugin extends OnMessagePlugin
 {
     protected $commands = [
         '涩图信息 (\d+)$' => 'info',
+        '作业$' => 'homework',
         '涩图存量$' => 'count',
         '涩图分类$' => 'category',
         '涩图备注 (\d+) (.+)' => 'comment',
@@ -31,12 +32,18 @@ class HPicPlugin extends OnMessagePlugin
     ];
     protected $listen = '*';
 
+<<<<<<< HEAD
     public function info(CQEvent $e, $id)
     {
         $img = Image::find($id);
         if (empty($img))
             return $e->reply('Image not found');
         return $e->reply($img->toJson(256));
+=======
+    public function homework(CQMessageEvent $e)
+    {
+        return $e->reply("请点击链接查看：\nhttps://bcr.401.pub/view/homework");
+>>>>>>> clanBattle: add homework viewer
     }
 
     public function help(CQEvent $e)
