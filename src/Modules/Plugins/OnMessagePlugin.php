@@ -33,13 +33,13 @@ abstract class OnMessagePlugin
             if ($key[0] == '^') {
                 $reg = "/$key/s";
             } else {
-                $reg = '/'. ($_ENV['CMD_PREFIX'] ?? '') . $key . '/s';
+                $reg = '/^'. ($_ENV['CMD_PREFIX'] ?? '') . $key . '/s';
             }
 
             if (preg_match($reg, $msg, $matches)) {
                 array_shift($matches);
                 if ($e->isDebug()) {
-                    $e->reply("[debug:calling $handler]\n");
+                    $e->reply("[debug:calling $handler]");
                 }
                 if (is_callable([$this, $handler])) {
                     return app()->call([$this, $handler], $matches);
@@ -48,7 +48,7 @@ abstract class OnMessagePlugin
             }
         }
         if ($e->isDebug()) {
-            $e->reply("[debug:match done]\n");
+            $e->reply("[debug:match done]");
         }
     }
 
