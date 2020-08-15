@@ -28,4 +28,14 @@ abstract class CQMessageEvent extends CQEvent
     {
         return $this->rawData('raw_message');
     }
+
+    public function isGroupMessage()
+    {
+        return $this->getMessageType() == 'group';
+    }
+
+    public function isPrivateMessage()
+    {
+        return $this->getMessageType() == 'user';
+    }
 }

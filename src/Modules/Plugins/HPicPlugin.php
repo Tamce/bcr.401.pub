@@ -259,6 +259,7 @@ EOD);
                 'comment' => empty($comment) ? null : $comment,
                 'extra' => [
                     'sender' => $e->getSenderId(),
+                    'source' => $e->getMessageSourceId(),
                 ],
             ]);
             $e->reply("上传成功！id: $item->id");
@@ -271,6 +272,7 @@ EOD);
                 'comment' => empty($comment) ? null : $comment,
                 'extra' => [
                     'sender' => $e->getSenderId(),
+                    'source' => $e->getMessageSourceId(),
                 ],
             ]);
             $e->reply("上传成功！id: $item->id");
