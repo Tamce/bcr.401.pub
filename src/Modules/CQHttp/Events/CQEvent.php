@@ -73,6 +73,13 @@ abstract class CQEvent
         return $this->debug;
     }
 
+    /**
+     * 获取或者设置 fast response 内容
+     *
+     * @param string $text 若不传该参数，则返回当前的 response 内容
+     * @param boolean $append 如为 false，则使用 $text 替换 response 内容，否则追加
+     * @return CQEvent|string $this
+     */
     public function reply($text = null, $append = true)
     {
         if (is_null($text)) {
@@ -87,6 +94,12 @@ abstract class CQEvent
         return $this;
     }
 
+    /**
+     * 获取或设置返回的 auto_escape 字段
+     *
+     * @param boolean $bool
+     * @return CQEvent|boolean $this
+     */
     public function autoEscape($bool = null)
     {
         if (is_null($bool)) {
