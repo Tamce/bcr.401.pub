@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Modules\Plugins;
 
 use App\Models\Image;
@@ -10,6 +11,7 @@ use App\Modules\CQHttp\Events\CQPrivateMessageEvent;
 use App\Modules\CQHttp\Events\IMessageEvent;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use PHPHtmlParser\Dom;
 
@@ -110,10 +112,10 @@ EOD);
         if ($result->isEmpty()) {
             return $e->reply('未找到符合的涩图');
         }
-        $e->reply('找到 '.$result->count().' 张符合的涩图:');
+        $e->reply('找到 ' . $result->count() . ' 张符合的涩图:');
         if ($result->count() <= 2) {
             foreach ($result as $item) {
-                $e->reply("\nid: {$item->id}\n备注: {$item->comment}\n".CQCode::image($this->getUrlOrDownload($item)));
+                $e->reply("\nid: {$item->id}\n备注: {$item->comment}\n" . CQCode::image($this->getUrlOrDownload($item)));
             }
         } else {
             $i = 1;
@@ -128,7 +130,7 @@ EOD);
     public function count(CQEvent $e)
     {
         $data = Image::select(DB::raw('count(*) as cnt'), 'downloaded')->groupBy('downloaded')->get();
-        $e->reply('涩图存量共 '. $data->sum('cnt') ." 份，其中");
+        $e->reply('涩图存量共 ' . $data->sum('cnt') . " 份，其中");
         foreach ($data as $downloadGrouped) {
             if ($downloadGrouped->downloaded) {
                 $e->reply("\n已下载 {$downloadGrouped->cnt} 份");
@@ -241,7 +243,6 @@ EOD);
         } else {
             return $e->reply('未发现待上传涩图');
         }
-        
     }
 
     public function upload(CQMessageEvent $e, $text)
@@ -304,16 +305,16 @@ EOD);
         $cq = CQHttp::instance();
         $url = $this->getUrlOrDownload($item);
         if (empty($item->local_path)) {
-            $before = $before."\n[互联网图片] 下载失败，原始 url:\n {$item->origin_url}";
+            $before = $before . "\n[互联网图片] 下载失败，原始 url:\n {$item->origin_url}";
         }
         $message = $before;
-        $message .= "id: {$item->id}\nhttps://bcr.401.pub/download/image?id={$item->id}\n".CQCode::image($url);
+        $message .= "id: {$item->id}\nhttps://bcr.401.pub/download/image?id={$item->id}\n" . CQCode::image($url);
         if (!empty($item->comment)) {
             $message .= "\n图片备注: {$item->comment}";
         }
         $message .= $after;
         if ($e->isDebug()) {
-            $message = $message."\n$url";
+            $message = $message . "\n$url";
         }
         $ret = $cq->sendMessage($e->getMessageType(), $e->getMessageSourceId(), $message);
     }

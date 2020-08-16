@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Modules\CQHttp\Events;
 
 abstract class CQMessageEvent extends CQEvent

@@ -1,12 +1,17 @@
 <?php
-namespace App\Modules\CQHttp\Events;
 
-use Exception;
+namespace App\Modules\CQHttp\Events;
 
 abstract class CQEvent
 {
     protected $time;
     protected $data;
+    /**
+     * 当前事件所在上下文
+     *
+     * @var App\Modules\CQHttp\Context
+     */
+    protected $context;
 
     static public function createFromArray(array $data)
     {
@@ -23,6 +28,17 @@ abstract class CQEvent
     {
         $this->data = $data;
         $this->time = @$data['time'];
+        $this->context;
+    }
+
+    /**
+     * 返回当前事件所在的上下文
+     *
+     * @return App\Modules\CQHttp\Context
+     */
+    public function context()
+    {
+        return $this->context;
     }
 
     public function eventType()
@@ -57,7 +73,7 @@ abstract class CQEvent
     {
         if ($this->isDebug()) {
             $this->autoEscape(true);
-            $this->reply("raw msg:\n".$this->rawData('raw_message')."\n========\n\nresponse:\n".json_encode($this->response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), false);
+            $this->reply("raw msg:\n" . $this->rawData('raw_message') . "\n========\n\nresponse:\n" . json_encode($this->response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), false);
         }
         return $this->response;
     }
@@ -89,7 +105,7 @@ abstract class CQEvent
         if (!$append) {
             $this->response['reply'] = $text;
         } else {
-            $this->response['reply'] = $this->reply().$text;
+            $this->response['reply'] = $this->reply() . $text;
         }
         return $this;
     }
