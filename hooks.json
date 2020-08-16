@@ -1,7 +1,0 @@
-[
-  {
-    "id": "deploy-webhook",
-    "execute-command": "deploy.sh",
-    "command-working-directory": "/webroot/bcr.401.pub"
-  }
-]
