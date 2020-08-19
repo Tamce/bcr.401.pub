@@ -19,7 +19,7 @@ class RollPlugin extends OnMessagePlugin
         if ($list->count() == 1) {
             return $e->reply('就一个你还 rand？？？');
         }
-        return $e->reply($e->getSenderNickname() . '摇到了：' . $list->random());
+        return $e->reply($e->getSenderName() . '摇到了：' . $list->random());
     }
 
     public function rollNum(CQMessageEvent $e, $text)
@@ -27,7 +27,7 @@ class RollPlugin extends OnMessagePlugin
         if (!is_integer($text)) {
             return $e->reply('点数不是一个合法的整数！');
         }
-        return $e->reply($e->getSenderNickname() . '摇到的点数是：' . rand(0, $text));
+        return $e->reply($e->getSenderName() . '摇到的点数是：' . rand(0, $text));
     }
 
     public function roll(CQMessageEvent $e)

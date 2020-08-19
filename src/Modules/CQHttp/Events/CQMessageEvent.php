@@ -17,12 +17,17 @@ abstract class CQMessageEvent extends CQEvent
         if (empty($key)) {
             return $this->rawData('sender');
         }
-        return $this->rawData('sender')[$key];
+        return @$this->rawData('sender')[$key];
     }
 
     public function getSenderNickname()
     {
         return $this->getSenderInfoArray('nickname');
+    }
+
+    public function getSenderName()
+    {
+        return $this->getSenderInfoArray('card') ?? $this->getSenderInfoArray('nickname');
     }
 
     public function getSubType($type = null)
