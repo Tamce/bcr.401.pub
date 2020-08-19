@@ -12,6 +12,19 @@ abstract class CQMessageEvent extends CQEvent
         return $this->rawData('user_id');
     }
 
+    public function getSenderInfoArray($key = null)
+    {
+        if (empty($key)) {
+            return $this->rawData('sender');
+        }
+        return $this->rawData('sender')[$key];
+    }
+
+    public function getSenderNickname()
+    {
+        return $this->getSenderInfoArray('nickname');
+    }
+
     public function getSubType($type = null)
     {
         if (is_null($type))
