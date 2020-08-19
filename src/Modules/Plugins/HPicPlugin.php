@@ -155,9 +155,10 @@ EOD);
             return $this->queryById($e, $category);
         }
 
-        $data = Image::where('downloaded', true)
-            ->where('extra', 'like', '%' . $e->getMessageSourceId() . '%');;
-        // $data = Image::whereRaw('true');
+        $data = Image::where('downloaded', true);
+        if ($e->isGroupMessage()) {
+            $data = $data->where('extra', 'like', '%' . $e->getMessageSourceId() . '%');
+        }
         if ($category != 'all') {
             $data = $data->where('category', $category);
         }
