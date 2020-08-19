@@ -155,13 +155,11 @@ EOD);
             return $this->queryById($e, $category);
         }
 
-        $data = Image::where('downloaded', true);
+        $data = Image::where('downloaded', true)
+            ->andWhere('extra', 'like', '%' . $e->context()->id() . '%');;
         // $data = Image::whereRaw('true');
         if ($category != 'all') {
-            $data = $data->andWhere([
-                ['category', $category],
-                ['extra', 'like', '%' . $e->context() . '%']
-            ]);
+            $data = $data->where('category', $category);
         }
         $data = $data->get();
         if ($data->isEmpty()) {
@@ -280,8 +278,7 @@ EOD);
                 ],
             ]);
             $e->reply("上传成功！id: $item->id");
-        }
-        else {
+        } else {
             $e->reply('未发现待上传涩图');
         }
     }

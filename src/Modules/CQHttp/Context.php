@@ -30,6 +30,11 @@ class Context
         $this->prefix = "{$id}_";
     }
 
+    public function id()
+    {
+        return $this->id;
+    }
+
     /**
      * 返回在当前 context 下的表格 Query Builder
      *
