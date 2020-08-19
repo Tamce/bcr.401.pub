@@ -158,7 +158,10 @@ EOD);
         $data = Image::where('downloaded', true);
         // $data = Image::whereRaw('true');
         if ($category != 'all') {
-            $data = $data->where('category', $category);
+            $data = $data->where([
+                ['category', $category],
+                ['extra', 'like', '%' . $e->context() . '%']
+            ]);
         }
         $data = $data->get();
         if ($data->isEmpty()) {
@@ -277,7 +280,8 @@ EOD);
                 ],
             ]);
             $e->reply("上传成功！id: $item->id");
-        } else {
+        }
+        else {
             $e->reply('未发现待上传涩图');
         }
     }
