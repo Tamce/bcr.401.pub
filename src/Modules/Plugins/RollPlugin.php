@@ -24,10 +24,11 @@ class RollPlugin extends OnMessagePlugin
 
     public function rollNum(CQMessageEvent $e, $text)
     {
-        if (!is_integer(trim($text))) {
+        $text = trim($text);
+        if (!is_numeric($text)) {
             return $e->reply('点数不是一个合法的整数！');
         }
-        return $e->reply($e->getSenderName() . '摇到的点数是：' . rand(0, $text));
+        return $e->reply($e->getSenderName() . '摇到的点数是：' . rand(1, $text));
     }
 
     public function roll(CQMessageEvent $e)
