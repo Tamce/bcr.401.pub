@@ -2,6 +2,8 @@
 
 namespace App\Modules\CQHttp\Events;
 
+use App\Modules\CQHttp\Context;
+
 abstract class CQEvent
 {
     protected $time;
@@ -28,7 +30,8 @@ abstract class CQEvent
     {
         $this->data = $data;
         $this->time = @$data['time'];
-        $this->context;
+        //TODO: build context
+        $this->context = Context::createFromMessageEvent($this);
     }
 
     /**

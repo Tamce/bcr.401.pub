@@ -149,14 +149,14 @@ EOD);
         }
     }
 
-    public function queryByCategory(CQEvent $e, $category)
+    public function queryByCategory(CQMessageEvent $e, $category)
     {
         if (is_numeric($category)) {
             return $this->queryById($e, $category);
         }
 
         $data = Image::where('downloaded', true)
-            ->andWhere('extra', 'like', '%' . $e->context()->id() . '%');;
+            ->where('extra', 'like', '%' . $e->getMessageSourceId() . '%');;
         // $data = Image::whereRaw('true');
         if ($category != 'all') {
             $data = $data->where('category', $category);
