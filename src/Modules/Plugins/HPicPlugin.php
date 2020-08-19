@@ -158,7 +158,7 @@ EOD);
         $data = Image::where('downloaded', true);
         // $data = Image::whereRaw('true');
         if ($category != 'all') {
-            $data = $data->where([
+            $data = $data->andWhere([
                 ['category', $category],
                 ['extra', 'like', '%' . $e->context() . '%']
             ]);
