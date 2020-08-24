@@ -11,6 +11,7 @@ class GuGuaPlugin extends OnMessagePlugin
         '^(.*)' => 'toad',
         '^.*\[CQ:at,qq=2789594061\].*什么功能.*' => 'gugua',
         '^.*\[CQ:at,qq=2789594061\].*能干啥.*' => 'gugua',
+        '^.*\[CQ:at,qq=2789594061\].*叫.*' => 'gugua',
         '^.*\[CQ:at,qq=2789594061\].*test.*' => 'test',
     ];
     protected $listen = '*';
