@@ -58,15 +58,17 @@ class Image extends Model
 
     static public function handleCache($file)
     {
-        [$url1, $file] = static::handleCQCache($file);
-        [$url2, $file] = static::handleCQGoCache($file);
-        $url = empty($url1) ? $url2 : $url1;
-        return [$url, $file];
+        $file = static::handleCQCache($file);
+        app('logger')->info("cache1: $file");
+        $file = static::handleCQGoCache($file);
+        app('logger')->info("cache2: $file");
+        return $file;
     }
 
     static public function handleCQCache($file)
     {
-        if (!Str::startsWith($file, 'downloaded/')) {
+        if (!Str::startsWith($file, 'downloaded/') && !Str::endswith($file, '.image')) {
+            app('logger')->info("handleCQCache: $file");
             $dest = storage("/image/downloaded/$file");
             $src = storage("/image/$file");
             if (file_exists($src)) {
@@ -77,11 +79,12 @@ class Image extends Model
                 if (preg_match('/url=(.*)/', $data, $matches)) {
                     $url = $matches[1];
                     $data = static::download($url);
-                    return [$url, $data['local_path']];
+                    app('logger')->info("handleCQGoCache: $file -> {$data['local_path']}");
+                    return $data['local_path'];
                 }
             }
         }
-        return [null, $file];
+        return $file;
     }
 
     static public function handleCQGoCache($file)
@@ -101,8 +104,9 @@ class Image extends Model
                 'name' => $data['local_path'],
                 'url' => $url,
             ]);
-            return [$url, $data['local_path']];
+            app('logger')->info("handleCQGoCache: $file -> {$data['local_path']}");
+            return $data['local_path'];
         }
-        return [null, $file];
+        return $file;
     }
 }
