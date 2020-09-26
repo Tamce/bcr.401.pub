@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -38,12 +39,12 @@ class Image extends Model
             if (is_array($type)) {
                 $type = $type[0];
             }
-            $ext = '.'.substr($type, strrpos($type, '/') + 1);
+            $ext = '.' . substr($type, strrpos($type, '/') + 1);
         }
         if (strlen($ext) > 5 or empty($ext)) {
             $ext = '.jpg';
         }
-        $name = Str::random(32).$ext;
+        $name = Str::random(32) . $ext;
         $name = "downloaded/$name";
         file_put_contents(storage("/image/$name"), $data);
         return [
@@ -70,6 +71,28 @@ class Image extends Model
                     return $data['local_path'];
                 }
             }
+        }
+        return $file;
+    }
+
+    static public function handleCQGoCache($file)
+    {
+        if (Str::endsWith($file, '.image')) {
+            $data = file_get_contents($file);
+            // $name = @unpack('H*', substr($data, 0, 16))[1];
+            $data = substr($data, 24);
+            // $ext = 'jpg';
+            // if (preg_match('/\.(\w+)/', $data, $matches)) {
+            //     $ext = $matches[1];
+            // }
+            $url = substr($data, 4 + strpos($data, "\0\0\0"));
+            $data = static::download($url);
+            app('logger')->info('handled cqhttp-go cache.', [
+                'origin' => $file,
+                'name' => $data['local_path'],
+                'url' => $url,
+            ]);
+            return $data['local_path'];
         }
         return $file;
     }
