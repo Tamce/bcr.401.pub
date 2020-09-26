@@ -254,9 +254,7 @@ EOD);
 
         if (preg_match('/\[CQ:image,file=([^\],]*),{0,1}.*\]/', $text, $matches)) {
             $path = $matches[1];
-            app('logger')->info("upload: before cache handle `$path`");
             $path = Image::handleCache($path);
-            app('logger')->info("upload: after cache handle `$path`");
             $item = Image::create([
                 'category' => 'uploaded',
                 'local_path' => $path,

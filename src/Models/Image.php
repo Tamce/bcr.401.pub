@@ -17,7 +17,7 @@ class Image extends Model
 
     static public function download($url, $category = 'default')
     {
-        app('logger')->info("try download image from `$url` to category `$category`");
+        app('logger')->debug("try download image from `$url` to category `$category`");
         set_time_limit(6);
         $client = new Client;
         try {
@@ -59,19 +59,17 @@ class Image extends Model
     static public function handleCache($file)
     {
         $file = static::handleCQCache($file);
-        app('logger')->info("cache1: $file");
         $file = static::handleCQGoCache($file);
-        app('logger')->info("cache2: $file");
         return $file;
     }
 
     static public function handleCQCache($file)
     {
         if (!Str::startsWith($file, 'downloaded/') && !Str::endswith($file, '.image')) {
-            app('logger')->info("handleCQCache: $file");
             $dest = storage("/image/downloaded/$file");
             $src = storage("/image/$file");
             if (file_exists($src)) {
+                app('logger')->debug("handleCQGoCache: image file exists, move to downloaded");
                 file_put_contents($dest, file_get_contents($src));
                 return "downloaded/$file";
             } else if (file_exists("$src.cqimg")) {
@@ -79,7 +77,7 @@ class Image extends Model
                 if (preg_match('/url=(.*)/', $data, $matches)) {
                     $url = $matches[1];
                     $data = static::download($url);
-                    app('logger')->info("handleCQGoCache: $file -> {$data['local_path']}");
+                    app('logger')->debug("handleCQGoCache: $file -> {$data['local_path']}");
                     return $data['local_path'];
                 }
             }
@@ -99,12 +97,12 @@ class Image extends Model
             // }
             $url = substr($data, 4 + strpos($data, "\0\0\0"));
             $data = static::download($url);
-            app('logger')->info('handled cqhttp-go cache.', [
+            app('logger')->debug('handled cqhttp-go cache.', [
                 'origin' => $file,
                 'name' => $data['local_path'],
                 'url' => $url,
             ]);
-            app('logger')->info("handleCQGoCache: $file -> {$data['local_path']}");
+            app('logger')->debug("handleCQGoCache: $file -> {$data['local_path']}");
             return $data['local_path'];
         }
         return $file;
