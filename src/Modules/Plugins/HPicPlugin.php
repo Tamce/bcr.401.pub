@@ -231,8 +231,7 @@ EOD);
 
         if (preg_match('/\[CQ:image,file=([^\],]*),{0,1}.*\]/', $text, $matches)) {
             $path = $matches[1];
-            $path = Image::handleCQCache($path);
-            $path = Image::handleCQGoCache($path);
+            [$url, $path] = Image::handleCache($path);
             $img = Image::updateOrCreate(['id' => $id], [
                 'id' => $id,
                 'category' => 'uploaded',
@@ -256,8 +255,7 @@ EOD);
         if (preg_match('/\[CQ:image,file=([^\],]*),{0,1}.*\]/', $text, $matches)) {
             $path = $matches[1];
             app('logger')->info("upload: before cache handle `$path`");
-            $path = Image::handleCQCache($path);
-            $path = Image::handleCQGoCache($path);
+            [$url, $path] = Image::handleCache($path);
             app('logger')->info("upload: after cache handle `$path`");
             $item = Image::create([
                 'category' => 'uploaded',

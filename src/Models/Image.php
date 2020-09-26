@@ -17,6 +17,7 @@ class Image extends Model
 
     static public function download($url, $category = 'default')
     {
+        app('logger')->info("try download image from `$url` to category `$category`");
         set_time_limit(6);
         $client = new Client;
         try {
@@ -55,6 +56,14 @@ class Image extends Model
         ];
     }
 
+    static public function handleCache($file)
+    {
+        [$url1, $file] = static::handleCQCache($file);
+        [$url2, $file] = static::handleCQGoCache($file);
+        $url = empty($url1) ? $url2 : $url1;
+        return [$url, $file];
+    }
+
     static public function handleCQCache($file)
     {
         if (!Str::startsWith($file, 'downloaded/')) {
@@ -68,17 +77,17 @@ class Image extends Model
                 if (preg_match('/url=(.*)/', $data, $matches)) {
                     $url = $matches[1];
                     $data = static::download($url);
-                    return $data['local_path'];
+                    return [$url, $data['local_path']];
                 }
             }
         }
-        return $file;
+        return [null, $file];
     }
 
     static public function handleCQGoCache($file)
     {
         if (Str::endsWith($file, '.image')) {
-            $data = file_get_contents($file);
+            $data = file_get_contents(storage("/image/$file"));
             // $name = @unpack('H*', substr($data, 0, 16))[1];
             $data = substr($data, 24);
             // $ext = 'jpg';
@@ -92,8 +101,8 @@ class Image extends Model
                 'name' => $data['local_path'],
                 'url' => $url,
             ]);
-            return $data['local_path'];
+            return [$url, $data['local_path']];
         }
-        return $file;
+        return [null, $file];
     }
 }
