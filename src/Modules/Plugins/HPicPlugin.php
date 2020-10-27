@@ -252,20 +252,24 @@ EOD);
         $text = trim($text);
         $comment = trim(substr($text, 0, strpos($text, '[')));
 
-        if (preg_match('/\[CQ:image,file=([^\],]*),{0,1}.*\]/', $text, $matches)) {
-            $path = $matches[1];
-            $path = Image::handleCache($path);
-            $item = Image::create([
-                'category' => 'uploaded',
-                'local_path' => $path,
-                'downloaded' => true,
-                'comment' => empty($comment) ? null : $comment,
-                'extra' => [
-                    'sender' => $e->getSenderId(),
-                    'source' => $e->getMessageSourceId(),
-                ],
-            ]);
-            $e->reply("上传成功！id: $item->id");
+        if (preg_match_all('/\[CQ:image,file=([^\],]*),{0,1}.*\]/', $text, $matches)) {
+            $paths = $matches[1];
+            $result = [];
+            foreach ($paths as $path) {
+                $path = Image::handleCache($path);
+                $item = Image::create([
+                    'category' => 'uploaded',
+                    'local_path' => $path,
+                    'downloaded' => true,
+                    'comment' => empty($comment) ? null : $comment,
+                    'extra' => [
+                        'sender' => $e->getSenderId(),
+                        'source' => $e->getMessageSourceId(),
+                    ],
+                ]);
+                $result[] = $item->id;
+            }
+            $e->reply("上传成功！id: " . join(",", $result));
         } else if (preg_match('/(http[^\s]+)/', $text, $matches)) {
             $url = $matches[1];
             $item = Image::create([
